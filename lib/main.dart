@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_web_frame/flutter_web_frame.dart';
 import 'package:region_list_app/system/system.dart';
+import 'package:region_list_app/ui/components/navbar.dart';
 import 'package:region_list_app/ui/components/screen/home_screen.dart';
 import 'package:region_list_app/ui/components/screen/splash_screen.dart';
+import 'package:region_list_app/ui/components/screen/web_home_screen.dart';
 import 'package:region_list_app/ui/components/system_builder.dart';
 
 void main() {
@@ -15,32 +17,39 @@ class AppRoot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SystemBuilder(builder: (context, system) {
-      return FlutterWebFrame(
-          maximumSize: const Size(720, double.infinity),
-          backgroundColor: Colors.blue,
-          builder: (context) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                  elevatedButtonTheme: ElevatedButtonThemeData(
-                      style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 15),
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.blue,
-                          elevation: 10)),
-                  inputDecorationTheme: InputDecorationTheme(
-                    errorStyle:
-                        const TextStyle(color: Colors.white, fontSize: 13),
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none),
-                  )),
-              home: const App(),
-            );
-          });
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            elevatedButtonTheme: ElevatedButtonThemeData(
+                style: kIsWeb
+                    ? ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 20),
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)))
+                    : ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 15),
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.blue,
+                        elevation: 10)),
+            iconTheme: const IconThemeData(color: Color(0xFF555555)),
+            inputDecorationTheme: InputDecorationTheme(
+              errorStyle: kIsWeb
+                  ? null
+                  : const TextStyle(color: Colors.white, fontSize: 13),
+              fillColor: Colors.white,
+              filled: !kIsWeb,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: kIsWeb
+                      ? const BorderSide(color: Color(0xFFDDDDDD))
+                      : BorderSide.none),
+            )),
+        home: const App(),
+      );
     });
   }
 }
@@ -51,6 +60,10 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: !kIsWeb
+          ? null
+          : const PreferredSize(
+              preferredSize: Size(double.infinity, 100), child: Navbar()),
       body: FutureBuilder<System>(
           future: System.of(context).init(),
           builder: (context, snapshot) {
@@ -58,7 +71,7 @@ class App extends StatelessWidget {
               return const SplashScreen();
             }
 
-            return const HomeScreen();
+            return kIsWeb ? const WebHomeScreen() : const HomeScreen();
           }),
     );
   }

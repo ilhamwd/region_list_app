@@ -46,7 +46,7 @@ class RegionRepository extends RegionUseCases {
 
   @override
   Future<void> deleteRegion(String id) async {
-    await system.dio.delete("${Config.baseUrl}delete.php?id=$id");
+    await system.dio.post("${Config.baseUrl}delete.php?id=$id");
   }
 
   @override
@@ -58,7 +58,7 @@ class RegionRepository extends RegionUseCases {
 
   @override
   Future<void> updateRegion(RegionController controller) async {
-    await system.dio.put(
+    await system.dio.post(
         "${Config.baseUrl}update.php?id=${controller.data!.id}",
         data: controller.payload);
   }

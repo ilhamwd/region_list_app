@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:region_list_app/classes/ui_controller.dart';
 import 'package:region_list_app/system/models/common_address.dart';
@@ -44,10 +45,12 @@ class RegionController extends UIController {
   Future<void> selectProvinsi(String? provinceId) async {
     if (provinceId == null) return;
 
-    provinsi = provinceId;
-    kota = null;
-    kecamatan = null;
-    kelurahan = null;
+    setState(() {
+      provinsi = provinceId;
+      kota = null;
+      kecamatan = null;
+      kelurahan = null;
+    });
 
     kotaList = (await repository.getCity(getAddressId(provinceId)))
         .data
@@ -64,9 +67,11 @@ class RegionController extends UIController {
   Future<void> selectKota(String? cityId) async {
     if (cityId == null) return;
 
-    kota = cityId;
-    kecamatan = null;
-    kelurahan = null;
+    setState(() {
+      kota = cityId;
+      kecamatan = null;
+      kelurahan = null;
+    });
 
     kecamatanList = (await repository.getDistrict(getAddressId(cityId)))
         .data
@@ -82,8 +87,10 @@ class RegionController extends UIController {
   Future<void> selectKecamatan(String? districtId) async {
     if (districtId == null) return;
 
-    kecamatan = districtId;
-    kelurahan = null;
+    setState(() {
+      kecamatan = districtId;
+      kelurahan = null;
+    });
 
     kelurahanList = (await repository.getWard(getAddressId(districtId)))
         .data
@@ -94,7 +101,7 @@ class RegionController extends UIController {
     setState(() {});
   }
 
-  void submit() async {
+  Future<void> submit() async {
     hasBeenSubmittedBefore = true;
 
     if (!formKey.currentState!.validate()) return;
@@ -110,7 +117,7 @@ class RegionController extends UIController {
         await repository.updateRegion(this);
       }
 
-      Navigator.pop(context, true);
+      if (!kIsWeb) Navigator.pop(context, true);
     } catch (e) {
       setState(() {
         isSubmitting = false;
